@@ -26,11 +26,27 @@ function drawOctave(octaveNumber) {
     }
 }
 
+
+var notePose2Str = ['C', 'Cd', 'D', 'Dd', 'E', 'F', 'Fd', 'G', 'Gd', 'A', 'Ad', 'B'];
 //var ws = new WebSocket("ws://127.0.0.1:6789/")
 var ws = new WebSocket("ws://192.168.1.64:6789/")
-var wcReady
-ws.onmessage = function(e){ console.log(e.data); $('body').append(e.data) };
-//ws.onopen = () => ws.send('hello');
+//ws.binaryType = 'arraybuffer'
+
+ws.onmessage = function(e){ 
+    midiMessage = JSON.parse(e.data); 
+    var type = midiMessage[0] == 144; //144 - on; 128 - off
+    var note = midiMessage[1]; // [0-127] C1:37, C0:25     
+    
+    octaveNumber = Math.floor((note - 25) / 12)
+    notePose = (note - 25)%12
+    
+    var noteStr = '#' + octaveNumber.toString() + notePose2Str[notePose];
+
+    if(type)
+        $(noteStr).addClass('pressedRemote');
+    else
+        $(noteStr).removeClass('pressedRemote');
+};
 
 function myMidiCallback(midiMessage) {
     //Decode MIDI
@@ -39,8 +55,6 @@ function myMidiCallback(midiMessage) {
     
     octaveNumber = Math.floor((note - 25) / 12)
     notePose = (note - 25)%12
-    
-    var notePose2Str = ['C', 'Cd', 'D', 'Dd', 'E', 'F', 'Fd', 'G', 'Gd', 'A', 'Ad', 'B'];
     
     var noteStr = '#' + octaveNumber.toString() + notePose2Str[notePose];
     
@@ -51,18 +65,20 @@ function myMidiCallback(midiMessage) {
         $(noteStr).removeClass('pressed');
         
     //Send note
-    
+    if(ws.readyState == 1) {
+        ws.send( JSON.stringify(midiMessage.data) );
+	}
 }
 
 $(document).ready(function(){
 	$(document).keypress(function(e){ 
 	    //$('#2G').addClass('pressed')
 	
-		if(ws.readyState == 1) {
+		/*if(ws.readyState == 1) {
 			console.log(e.key); 
 			$('body').append(e.key); 
 			ws.send(e.key);
-		}
+		}*/
 	});
     
     for(var i = 0; i < 6; i++) 

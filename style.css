@@ -26,6 +26,10 @@ rect.pressed {
     fill: blue;
 }
 
+rect.pressedRemote {
+    fill: red;
+}
+
 .keySign {
     font-family: Arial;
     font-size: 10px;
