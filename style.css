@@ -1,0 +1,33 @@
+body {
+    background-color: lightblue;
+}
+
+rect.whiteKey {
+    width: 20px;
+    height: 120px;
+    fill: white;
+    stroke-width: 2;
+    stroke: black;
+    rx: 4;
+    ry: 4;
+}
+
+rect.blackKey {
+    width: 10px;
+    height: 80px;
+    fill: black;
+    stroke-width: 2;
+    stroke: black;
+    rx: 4;
+    ry: 4;
+}
+
+rect.pressed {
+    fill: blue;
+}
+
+.keySign {
+    font-family: Arial;
+    font-size: 10px;
+    color: blue;
+}
