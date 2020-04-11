@@ -3,60 +3,9 @@
     <head>
     <title>WebSocket demo</title>
     <link rel="stylesheet" href="style.css" />
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-	<script>
-    	function SVG(tag) {
-				return document.createElementNS('http://www.w3.org/2000/svg', tag);
-			}
-	
-		function  drawOctave(octaveNumber) {
-
-			function whiteKey(x, keyName) {
-				return $(SVG('rect')).addClass('whiteKey').attr('id', keyName).attr('x', x);
-			}
-			function blackKey(x, keyName) {
-			    return $(SVG('rect')).addClass('blackKey').attr('id', keyName).attr('x', x);
-			}
-
-       	    var w = 10; // black key width
-    	    var blackKeysOffsets = [  20-w/2, 2*20-w/2, 4*20-w/2, 5*20-w/2, 6*20-w/2 ]
-            var octaveOffset = octaveNumber*20*7;
-            var whiteKeyNames = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
-            var blackKeysNames = ['Cd', 'Dd', 'Fd', 'Gd', 'Ad']
-
-            for(var i = 0; i < 7; i++) 
-    			$('#piano').append( whiteKey(octaveOffset + i*20, octaveNumber.toString() + whiteKeyNames[i]) );
-
-    	    for(var i = 0; i < blackKeysOffsets.length; i++){
-    	        var offset = blackKeysOffsets[i];
-    	        $('#piano').append( blackKey(octaveOffset + offset, octaveNumber.toString() + blackKeysNames[i]) );
-    	    }
-		}
-
-		//var ws = new WebSocket("ws://127.0.0.1:6789/")
-		var ws = new WebSocket("ws://192.168.1.64:6789/")
-		var wcReady
-		ws.onmessage = function(e){ console.log(e.data); $('body').append(e.data) };
-		//ws.onopen = () => ws.send('hello');
-
-		$(document).ready(function(){
-			$(document).keypress(function(e){ 
-			    //$('#2G').addClass('pressed')
-			
-				if(ws.readyState == 1) {
-					console.log(e.key); 
-					$('body').append(e.key); 
-					ws.send(e.key);
-				}
-			});
-            
-            for(var i = 0; i < 6; i++) 
-			    drawOctave(i);
-			$('#piano').append( $(SVG('text')).addClass('keySign').attr('y', 110).attr('x', 20*7*3 + 5).append('C1') );
-		});
-        </script>
-
-
+	    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	    <script type="text/javascript" src="midi.js"></script>
+	    <script type="text/javascript" src="main.js"></script>
     </head>
     <body>
        
