@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-    <title>WebSocket demo</title>
+    <title>PianoChat - (c) Adeykin</title>
     <link rel="stylesheet" href="style.css" />
 	    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 	    <script type="text/javascript" src="config.js"></script>
@@ -11,7 +11,13 @@
     <body>
        
 	<p id='main'></p>
+	<h2>PianoChat</h2>
 	<svg id="piano" width="840" height="200"></svg>
-	<div>Количество человек на фортепиано: <span id="userCount">1</span></div>
+	<div class="properties">
+	    <div>Количество человек на фортепиано: <span id="userCount">1</span></div>
+	    <div>
+	        <ul id="inputMIDIDevices">Доступные MIDI устройства: </ul>
+	    </div>
+	</div>
     </body>
 </html>

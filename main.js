@@ -47,9 +47,6 @@ ws.onmessage = function(e){
         else
             $(noteStr).removeClass('pressedRemote');
     } else if(message.type == 'users') {
-        console.log('Process users message');
-        console.log(message.count)
-        
         $('#userCount').text(message.count)
     } else {
         console.log('Error: unsupported input message');

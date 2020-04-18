@@ -13,6 +13,12 @@ function onMIDISuccess(midiAccess) {
     var inputs = midiAccess.inputs;
     var outputs = midiAccess.outputs;
     
+    //console.log(Array.from(inputs.keys()))
+    inputs.forEach( function(key, port) {
+        console.log(key.name);
+        $('#inputMIDIDevices').append('<li>' + key.name + '</li>')
+    });
+    
     for (var input of midiAccess.inputs.values()) {
         console.log('access device')
         input.onmidimessage = _midiCallBack; //getMIDIMessage;
