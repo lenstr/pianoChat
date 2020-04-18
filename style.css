@@ -3,6 +3,20 @@ body {
     background-color: #ccd;
 }
 
+/*div {
+    margin-top: 20 px;
+}*/
+
+ul {
+    margin: 0 px;
+    margin-block-start: 0px;
+}
+
+
+#userCount {
+    color: #c22
+}
+
 rect.whiteKey {
     width: 20px;
     height: 120px;
