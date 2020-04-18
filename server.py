@@ -1,20 +1,31 @@
 import asyncio
 import websockets
+import datetime
 
-USERS = set()
+logFile = open('userStatistics.log', 'a')
+
+USERS = dict()
 
 async def register(websocket):
-    USERS.add(websocket)
+    print('Add user: ' + str(websocket))
+    USERS[websocket] = datetime.datetime.now()
 
 async def unregister(websocket):
-    USERS.remove(websocket)
+    assert( websocket in USERS )
+    userTime = USERS[websocket]
+    del USERS[websocket]
+    time = datetime.datetime.now()
+    timeStr = time.strftime("%Y-%m-%d-%H.%M.%S")
+    logFile.write('{}: Log out after {}\n'.format(timeStr, time-userTime))
+    logFile.flush()
+    print('User was disconnected')
 
 async def notify_users(message):
     if USERS:  # asyncio.wait doesn't accept an empty list
-        await asyncio.wait([user.send(message) for user in USERS])
+        await asyncio.wait([user.send(message) for user in USERS.keys()])
 
 async def notify_users_except_me(websocket, message):
-    users_without_me = set(filter(lambda x: x != websocket,USERS))
+    users_without_me = set(filter(lambda x: x != websocket, USERS.keys()))
     if users_without_me:
         await asyncio.wait([user.send(message) for user in users_without_me])
         
@@ -24,6 +35,7 @@ async def hello2(websocket, path):
     try:
         async for message in websocket:
             print(message)
+            print('have {} users connected'.format(len(USERS)))
             await notify_users_except_me(websocket, message)
             #await websocket.send(message)
             
