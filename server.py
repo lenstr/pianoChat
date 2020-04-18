@@ -30,8 +30,7 @@ async def hello2(websocket, path):
     finally:
         await unregister(websocket)
 
-#start_server = websockets.serve(hello2, "localhost", 6789) #8765
-start_server = websockets.serve(hello2, "192.168.1.64", 6789) #8765
+start_server = websockets.serve(hello2, "0.0.0.0", 6789)
 
 asyncio.get_event_loop().run_until_complete(start_server)
 asyncio.get_event_loop().run_forever()

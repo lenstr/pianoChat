@@ -28,9 +28,7 @@ function drawOctave(octaveNumber) {
 
 
 var notePose2Str = ['C', 'Cd', 'D', 'Dd', 'E', 'F', 'Fd', 'G', 'Gd', 'A', 'Ad', 'B'];
-//var ws = new WebSocket("ws://127.0.0.1:6789/")
-var ws = new WebSocket("ws://192.168.1.64:6789/")
-//ws.binaryType = 'arraybuffer'
+var ws = new WebSocket('ws://' +_hostUrl +':6789/')
 
 ws.onmessage = function(e){ 
     midiMessage = JSON.parse(e.data); 
