@@ -31,19 +31,29 @@ var notePose2Str = ['C', 'Cd', 'D', 'Dd', 'E', 'F', 'Fd', 'G', 'Gd', 'A', 'Ad', 
 var ws = new WebSocket('ws://' +_hostUrl +':6789/')
 
 ws.onmessage = function(e){ 
-    midiMessage = JSON.parse(e.data); 
-    var type = midiMessage[0] == 144; //144 - on; 128 - off
-    var note = midiMessage[1]; // [0-127] C1:37, C0:25     
-    
-    octaveNumber = Math.floor((note - 25) / 12)
-    notePose = (note - 25)%12
-    
-    var noteStr = '#' + octaveNumber.toString() + notePose2Str[notePose];
+    message = JSON.parse(e.data); 
+    if(message.type == 'midi') {
+        var midiMessage = message.data;
+        var type = midiMessage[0] == 144; //144 - on; 128 - off
+        var note = midiMessage[1]; // [0-127] C1:37, C0:25     
+        
+        octaveNumber = Math.floor((note - 25) / 12)
+        notePose = (note - 25)%12
+        
+        var noteStr = '#' + octaveNumber.toString() + notePose2Str[notePose];
 
-    if(type)
-        $(noteStr).addClass('pressedRemote');
-    else
-        $(noteStr).removeClass('pressedRemote');
+        if(type)
+            $(noteStr).addClass('pressedRemote');
+        else
+            $(noteStr).removeClass('pressedRemote');
+    } else if(message.type == 'users') {
+        console.log('Process users message');
+        console.log(message.count)
+        
+        $('#userCount').text(message.count)
+    } else {
+        console.log('Error: unsupported input message');
+    }
 };
 
 function myMidiCallback(midiMessage) {
@@ -64,7 +74,10 @@ function myMidiCallback(midiMessage) {
         
     //Send note
     if(ws.readyState == 1) {
-        ws.send( JSON.stringify(midiMessage.data) );
+        var message = {};
+        message.type = 'midi';
+        message.data = midiMessage.data;
+        ws.send( JSON.stringify(message) );
 	}
 }
 

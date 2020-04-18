@@ -1,14 +1,22 @@
 import asyncio
 import websockets
 import datetime
+import json
 
 logFile = open('userStatistics.log', 'a')
 
 USERS = dict()
 
+def userMessage():
+    message = {}
+    message['type'] = 'users'
+    message['count'] = len(USERS)
+    return json.dumps(message)
+
 async def register(websocket):
     print('Add user: ' + str(websocket))
     USERS[websocket] = datetime.datetime.now()
+    await notify_users(userMessage())
 
 async def unregister(websocket):
     assert( websocket in USERS )
@@ -19,6 +27,7 @@ async def unregister(websocket):
     logFile.write('{}: Log out after {}\n'.format(timeStr, time-userTime))
     logFile.flush()
     print('User was disconnected')
+    await notify_users(userMessage())
 
 async def notify_users(message):
     if USERS:  # asyncio.wait doesn't accept an empty list
@@ -35,6 +44,7 @@ async def hello2(websocket, path):
     try:
         async for message in websocket:
             print(message)
+            print(type(message))
             print('have {} users connected'.format(len(USERS)))
             await notify_users_except_me(websocket, message)
             #await websocket.send(message)
