@@ -26,6 +26,9 @@ function drawOctave(octaveNumber) {
     }
 }
 
+var notePose2Str = ['C', 'Cd', 'D', 'Dd', 'E', 'F', 'Fd', 'G', 'Gd', 'A', 'Ad', 'B'];
+var ws = false;
+
 function myMidiCallback(midiMessage) {
 
     if( midiMessage.data[0] != 144 && midiMessage.data[0] != 128 )
@@ -49,7 +52,7 @@ function myMidiCallback(midiMessage) {
         $(noteStr).removeClass('pressed');
         
     //Send note
-    if(ws.readyState == 1) {
+    if(ws && ws.readyState == 1) {
         var message = {};
         message.type = 'midi';
         message.data = midiMessage.data;
@@ -64,25 +67,24 @@ $(document).ready(function(){
     else
         $('#webSocketsSupport').text('НЕТ!')
     
-
-    var notePose2Str = ['C', 'Cd', 'D', 'Dd', 'E', 'F', 'Fd', 'G', 'Gd', 'A', 'Ad', 'B'];
-    var ws = new WebSocket('ws://' +_hostUrl +':6789/')
+    ws = new WebSocket('ws://' +_hostUrl +':6789/')
     
     ws.onmessage = function(e){ 
         message = JSON.parse(e.data); 
         if(message.type == 'midi') {
             var midiMessage = message.data;
-            var type = midiMessage[0] == 144; //144 - on; 128 - off
+            var pressedSig = midiMessage[0] == 144; //144 - on; 128 - off
             var note = midiMessage[1]; // [0-127] C1:37, C0:25     
+            var velocity = midiMessage[3];
             
             octaveNumber = Math.floor((note - 24) / 12)
             notePose = (note - 24)%12
             
             var noteStr = '#' + octaveNumber.toString() + notePose2Str[notePose];
 
-            if(type)
+            if(pressedSig && velocity > 0)
                 $(noteStr).addClass('pressedRemote');
-            else
+            else if(!pressedSig || (pressedSig && velocity == 0))
                 $(noteStr).removeClass('pressedRemote');
         } else if(message.type == 'users') {
             $('#userCount').text(message.count)
