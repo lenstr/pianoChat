@@ -37,8 +37,9 @@ function myMidiCallback(midiMessage) {
     console.log(midiMessage)
 
     //Decode MIDI
-    var type = midiMessage.data[0] == 144; //144 - on; 128 - off
+    var pressedSig = midiMessage.data[0] == 144; //144 - on; 128 - off
     var note = midiMessage.data[1]; // [0-127] C1:37, C0:25 
+    var velocity = midiMessage[2];
     
     octaveNumber = Math.floor((note - 24) / 12)
     notePose = (note - 24)%12
@@ -46,9 +47,9 @@ function myMidiCallback(midiMessage) {
     var noteStr = '#' + octaveNumber.toString() + notePose2Str[notePose];
     
     //Draw note
-    if(type)
+    if(pressedSig && velocity > 0)
         $(noteStr).addClass('pressed');
-    else
+    else if(!pressedSig || (pressedSig && velocity == 0))
         $(noteStr).removeClass('pressed');
         
     //Send note
@@ -75,7 +76,7 @@ $(document).ready(function(){
             var midiMessage = message.data;
             var pressedSig = midiMessage[0] == 144; //144 - on; 128 - off
             var note = midiMessage[1]; // [0-127] C1:37, C0:25     
-            var velocity = midiMessage[3];
+            var velocity = midiMessage[2];
             
             octaveNumber = Math.floor((note - 24) / 12)
             notePose = (note - 24)%12
