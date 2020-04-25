@@ -26,33 +26,6 @@ function drawOctave(octaveNumber) {
     }
 }
 
-
-var notePose2Str = ['C', 'Cd', 'D', 'Dd', 'E', 'F', 'Fd', 'G', 'Gd', 'A', 'Ad', 'B'];
-var ws = new WebSocket('ws://' +_hostUrl +':6789/')
-
-ws.onmessage = function(e){ 
-    message = JSON.parse(e.data); 
-    if(message.type == 'midi') {
-        var midiMessage = message.data;
-        var type = midiMessage[0] == 144; //144 - on; 128 - off
-        var note = midiMessage[1]; // [0-127] C1:37, C0:25     
-        
-        octaveNumber = Math.floor((note - 24) / 12)
-        notePose = (note - 24)%12
-        
-        var noteStr = '#' + octaveNumber.toString() + notePose2Str[notePose];
-
-        if(type)
-            $(noteStr).addClass('pressedRemote');
-        else
-            $(noteStr).removeClass('pressedRemote');
-    } else if(message.type == 'users') {
-        $('#userCount').text(message.count)
-    } else {
-        console.log('Error: unsupported input message');
-    }
-};
-
 function myMidiCallback(midiMessage) {
 
     if( midiMessage.data[0] != 144 && midiMessage.data[0] != 128 )
@@ -85,15 +58,41 @@ function myMidiCallback(midiMessage) {
 }
 
 $(document).ready(function(){
-	$(document).keypress(function(e){ 
-	    //$('#2G').addClass('pressed')
+    var isWebSocketsSupported = (("WebSocket" in window && window.WebSocket != undefined) || ("MozWebSocket" in window));
+    if(isWebSocketsSupported)
+        $('#webSocketsSupport').text('да')
+    else
+        $('#webSocketsSupport').text('НЕТ!')
+    
+
+    var notePose2Str = ['C', 'Cd', 'D', 'Dd', 'E', 'F', 'Fd', 'G', 'Gd', 'A', 'Ad', 'B'];
+    var ws = new WebSocket('ws://' +_hostUrl +':6789/')
+    
+    ws.onmessage = function(e){ 
+        message = JSON.parse(e.data); 
+        if(message.type == 'midi') {
+            var midiMessage = message.data;
+            var type = midiMessage[0] == 144; //144 - on; 128 - off
+            var note = midiMessage[1]; // [0-127] C1:37, C0:25     
+            
+            octaveNumber = Math.floor((note - 24) / 12)
+            notePose = (note - 24)%12
+            
+            var noteStr = '#' + octaveNumber.toString() + notePose2Str[notePose];
+
+            if(type)
+                $(noteStr).addClass('pressedRemote');
+            else
+                $(noteStr).removeClass('pressedRemote');
+        } else if(message.type == 'users') {
+            $('#userCount').text(message.count)
+        } else {
+            console.log('Error: unsupported input message');
+        }
+    };
+    
+	$(document).keypress(function(e){});
 	
-		/*if(ws.readyState == 1) {
-			console.log(e.key); 
-			$('body').append(e.key); 
-			ws.send(e.key);
-		}*/
-	});
     
     for(var i = 0; i < 6; i++) 
 	    drawOctave(i);
