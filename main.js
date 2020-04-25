@@ -37,8 +37,8 @@ ws.onmessage = function(e){
         var type = midiMessage[0] == 144; //144 - on; 128 - off
         var note = midiMessage[1]; // [0-127] C1:37, C0:25     
         
-        octaveNumber = Math.floor((note - 25) / 12)
-        notePose = (note - 25)%12
+        octaveNumber = Math.floor((note - 24) / 12)
+        notePose = (note - 24)%12
         
         var noteStr = '#' + octaveNumber.toString() + notePose2Str[notePose];
 
@@ -54,12 +54,18 @@ ws.onmessage = function(e){
 };
 
 function myMidiCallback(midiMessage) {
+
+    if( midiMessage.data[0] != 144 && midiMessage.data[0] != 128 )
+        return;
+
+    console.log(midiMessage)
+
     //Decode MIDI
     var type = midiMessage.data[0] == 144; //144 - on; 128 - off
     var note = midiMessage.data[1]; // [0-127] C1:37, C0:25 
     
-    octaveNumber = Math.floor((note - 25) / 12)
-    notePose = (note - 25)%12
+    octaveNumber = Math.floor((note - 24) / 12)
+    notePose = (note - 24)%12
     
     var noteStr = '#' + octaveNumber.toString() + notePose2Str[notePose];
     

@@ -10,6 +10,7 @@ body {
 ul {
     margin: 0 px;
     margin-block-start: 0px;
+    -webkit-margin-before: 0px;
 }
 
 
