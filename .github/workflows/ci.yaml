@@ -3,7 +3,9 @@ name: ci
 on:
   push:
     branches: 
-    - master
+      - master
+    tags:
+      - 'v*.*.*'
 
 jobs:
   main:
@@ -12,6 +14,20 @@ jobs:
       -
         name: Checkout
         uses: actions/checkout@v2
+      -
+        name: Docker meta server
+        id: docker_meta_server
+        uses: crazy-max/ghaction-docker-meta@v1
+        with:
+          images: lenstr/piano-chat-server
+          tag-sha: true # add git short SHA as Docker tag
+      -
+        name: Docker meta www
+        id: docker_meta_www
+        uses: crazy-max/ghaction-docker-meta@v1
+        with:
+          images: lenstr/piano-chat-www
+          tag-sha: true # add git short SHA as Docker tag
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v1
@@ -33,7 +49,8 @@ jobs:
           file: ./build/server.Dockerfile
           platforms: linux/amd64,linux/arm/v7
           push: true
-          tags: lenstr/piano-chat-server:latest
+          tags: ${{ steps.docker_meta_server.outputs.tags }}
+          labels: ${{ steps.docker_meta_server.outputs.labels }}
       -
         name: Build and push www
         id: docker_build_www
@@ -43,7 +60,8 @@ jobs:
           file: ./build/www.Dockerfile
           platforms: linux/amd64,linux/arm/v7
           push: true
-          tags: lenstr/piano-chat-www:latest
+          tags: ${{ steps.docker_meta_www.outputs.tags }}
+          labels: ${{ steps.docker_meta_www.outputs.labels }}
       -
         name: Image digest server
         run: echo ${{ steps.docker_build_server.outputs.digest }}
