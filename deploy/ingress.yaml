@@ -1,0 +1,27 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    traefik.ingress.kubernetes.io/redirect-entry-point: https
+    traefik.ingress.kubernetes.io/rewrite-target: /
+  name: piano-chat
+  namespace: default
+spec:
+  tls:
+    - secretName: lenstr-keenetic-pro-tls
+      hosts:
+        - lenstr.keenetic.pro
+  rules:
+  - host: lenstr.keenetic.pro
+    http:
+      paths:
+      - backend:
+          serviceName: piano-chat
+          servicePort: http
+        path: /piano-chat
+      - backend:
+          serviceName: piano-chat
+          servicePort: ws
+        path: /piano-chat/ws

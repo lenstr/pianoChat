@@ -3,8 +3,6 @@ import websockets
 import datetime
 import json
 
-logFile = open('userStatistics.log', 'a')
-
 USERS = dict()
 
 def userMessage():
@@ -24,8 +22,7 @@ async def unregister(websocket):
     del USERS[websocket]
     time = datetime.datetime.now()
     timeStr = time.strftime("%Y-%m-%d-%H.%M.%S")
-    logFile.write('{}: Log out after {}\n'.format(timeStr, time-userTime))
-    logFile.flush()
+    print(f'{timeStr}: Log out after {time-userTime}')
     print('User was disconnected')
     await notify_users(userMessage())
 
@@ -39,7 +36,7 @@ async def notify_users_except_me(websocket, message):
         await asyncio.wait([user.send(message) for user in users_without_me])
         
 
-async def hello2(websocket, path):
+async def handle_connection(websocket, path):
     await register(websocket)
     try:
         async for message in websocket:
@@ -52,8 +49,16 @@ async def hello2(websocket, path):
     finally:
         await unregister(websocket)
 
-start_server = websockets.serve(hello2, "0.0.0.0", 6789)
+async def main():
+    host = '0.0.0.0'
+    port = 6789
 
-asyncio.get_event_loop().run_until_complete(start_server)
-asyncio.get_event_loop().run_forever()
+    print(f'start listening on {host}:{port}')
 
+    server = await websockets.serve(ws_handler=handle_connection, host=host, port=port)
+    await server.wait_closed()
+
+try:
+    asyncio.run(main())
+except KeyboardInterrupt:
+    print('keyboard interrupt signal received')
