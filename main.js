@@ -29,6 +29,46 @@ function drawOctave(octaveNumber) {
 var notePose2Str = ['C', 'Cd', 'D', 'Dd', 'E', 'F', 'Fd', 'G', 'Gd', 'A', 'Ad', 'B'];
 var ws = false;
 
+var inputDevices = [];
+var outputDevices = [];
+var currectOutputDevice = 0;
+
+function updateDevices(midiAccess) {
+    console.log(midiAccess);
+
+    var inputs = midiAccess.inputs;
+    var outputs = midiAccess.outputs;
+    
+    for(let input of inputs.values()) {
+        inputDevices.push(input)
+    }
+    
+    outputDevices.push({name: "None"})
+    for(let output of outputs.values()) {
+        outputDevices.push(output)
+    }
+    
+    //draw
+    for(let [i, input] of inputDevices.entries()) {
+        $('#inputMIDIDevices').append('<option value="' + i + '">' + input.name + '</option>')
+    }
+    
+    for(let [i, output] of outputDevices.entries()) {
+        $('#outputMIDIDevices').append('<option value="' + i + '">' + output.name + '</option>')
+    }
+    
+    registerInputCallback(0)
+}
+
+function registerInputCallback(index) {
+    for(let [i, input] of inputDevices.entries()) {
+        if(i == index)
+            input.onmidimessage = myMidiCallback
+        else
+            input.onmidimessage = dummyCallback
+    }
+}
+
 function myMidiCallback(midiMessage) {
 
     if( midiMessage.data[0] != 144 && midiMessage.data[0] != 128 )
@@ -39,13 +79,13 @@ function myMidiCallback(midiMessage) {
     //Decode MIDI
     var pressedSig = midiMessage.data[0] == 144; //144 - on; 128 - off
     var note = midiMessage.data[1]; // [0-127] C1:37, C0:25 
-    var velocity = midiMessage[2];
+    var velocity = midiMessage.data[2];
     
     octaveNumber = Math.floor((note - 24) / 12)
     notePose = (note - 24)%12
     
     var noteStr = '#' + octaveNumber.toString() + notePose2Str[notePose];
-    
+    //console.log('local note ID: ' + noteStr + '; mess: ' + midiMessage.data)
     //Draw note
     if(pressedSig && velocity > 0)
         $(noteStr).addClass('pressed');
@@ -61,6 +101,8 @@ function myMidiCallback(midiMessage) {
 	}
 }
 
+function dummyCallback(midiMessage) {}
+
 $(document).ready(function(){
     var isWebSocketsSupported = (("WebSocket" in window && window.WebSocket != undefined) || ("MozWebSocket" in window));
     if(isWebSocketsSupported)
@@ -74,6 +116,7 @@ $(document).ready(function(){
         message = JSON.parse(e.data); 
         if(message.type == 'midi') {
             var midiMessage = message.data;
+            
             var pressedSig = midiMessage[0] == 144; //144 - on; 128 - off
             var note = midiMessage[1]; // [0-127] C1:37, C0:25     
             var velocity = midiMessage[2];
@@ -82,11 +125,17 @@ $(document).ready(function(){
             notePose = (note - 24)%12
             
             var noteStr = '#' + octaveNumber.toString() + notePose2Str[notePose];
-
+            console.log('remote note ID: ' + noteStr)
             if(pressedSig && velocity > 0)
                 $(noteStr).addClass('pressedRemote');
             else if(!pressedSig || (pressedSig && velocity == 0))
                 $(noteStr).removeClass('pressedRemote');
+                
+            //Propagate to local piano
+            if(currectOutputDevice > 0) {
+                var outMessage = [midiMessage[0], midiMessage[1], midiMessage[2]]
+                outputDevices[currectOutputDevice].send(outMessage)
+            }
         } else if(message.type == 'users') {
             $('#userCount').text(message.count)
         } else {
@@ -101,5 +150,16 @@ $(document).ready(function(){
 	    drawOctave(i);
 	$('#piano').append( $(SVG('text')).addClass('keySign').attr('y', 110).attr('x', 20*7*3 + 5).append('C1') );
 
-	startMIDI(myMidiCallback)
+	startMIDI(updateDevices)
+	
+	$('#inputMIDIDevices').change(function() {
+        index = $(this).find(":selected").attr('value')
+        console.log('Change input to index: ' + index)
+        registerInputCallback(index)
+    });
+    
+    $('#outputMIDIDevices').change(function() {
+        index = $(this).find(":selected").attr('value')
+        currectOutputDevice = index
+    });
 });
