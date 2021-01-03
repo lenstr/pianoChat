@@ -27,7 +27,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: /build/server.Dockerfile
+          file: ./build/server.Dockerfile
           platforms: linux/amd64,linux/arm/v7
           push: true
           tags: lenstr/piano-chat-server:latest
@@ -37,7 +37,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: /build/www.Dockerfile
+          file: ./build/www.Dockerfile
           platforms: linux/amd64,linux/arm/v7
           push: true
           tags: lenstr/piano-chat-www:latest
