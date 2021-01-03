@@ -26,19 +26,21 @@ jobs:
         id: docker_build_server
         uses: docker/build-push-action@v2
         with:
+          context: .
+          file: /build/server.Dockerfile
+          platforms: linux/amd64,linux/arm/v7
           push: true
           tags: lenstr/piano-chat-server:latest
-          context: ./build/server.Dockerfile
-          platforms: linux/amd64,linux/arm/v7
       -
         name: Build and push www
         id: docker_build_www
         uses: docker/build-push-action@v2
         with:
+          context: .
+          file: /build/www.Dockerfile
+          platforms: linux/amd64,linux/arm/v7
           push: true
           tags: lenstr/piano-chat-www:latest
-          context: ./build/www.Dockerfile
-          platforms: linux/amd64,linux/arm/v7
       -
         name: Image digest server
         run: echo ${{ steps.docker_build_server.outputs.digest }}
