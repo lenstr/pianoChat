@@ -110,8 +110,9 @@ $(document).ready(function(){
     else
         $('#webSocketsSupport').text('НЕТ!')
     
-    const protocol = location.protocol.replace('http', 'ws')
-    ws = new WebSocket(`${protocol}//${location.host}/piano-chat/ws`)
+    const baseHref = document.getElementById('base-href')
+    const baseWSUrl = baseHref.href.replace('http', 'ws')
+    ws = new WebSocket(`${baseWSUrl}ws`)
     
     ws.onmessage = function(e){ 
         message = JSON.parse(e.data); 
