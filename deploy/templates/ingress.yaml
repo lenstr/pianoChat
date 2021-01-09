@@ -3,25 +3,23 @@ kind: Ingress
 metadata:
   annotations:
     kubernetes.io/ingress.class: traefik
-    cert-manager.io/cluster-issuer: letsencrypt-prod
     traefik.ingress.kubernetes.io/redirect-entry-point: https
     traefik.ingress.kubernetes.io/rewrite-target: /
   name: piano-chat
-  namespace: default
 spec:
   tls:
-    - secretName: lenstr-keenetic-pro-tls
+    - secretName: {{ .Values.ingress.tls.secretName }}
       hosts:
-        - lenstr.keenetic.pro
+        - {{ .Values.ingress.host }}
   rules:
-  - host: lenstr.keenetic.pro
+  - host: {{ .Values.ingress.host }}
     http:
       paths:
       - backend:
           serviceName: piano-chat
           servicePort: http
-        path: /piano-chat
+        path: {{ .Values.ingress.path }}
       - backend:
           serviceName: piano-chat
           servicePort: ws
-        path: /piano-chat/ws
+        path: {{ .Values.ingress.path }}/ws
