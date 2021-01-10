@@ -47,7 +47,7 @@ jobs:
         with:
           context: .
           file: ./build/server.Dockerfile
-          platforms: linux/amd64,linux/arm/v7
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
           push: true
           tags: ${{ steps.docker_meta_server.outputs.tags }}
           labels: ${{ steps.docker_meta_server.outputs.labels }}
@@ -58,7 +58,7 @@ jobs:
         with:
           context: .
           file: ./build/www.Dockerfile
-          platforms: linux/amd64,linux/arm/v7
+          platforms: linux/amd64,linux/arm64,linux/arm/v7
           push: true
           tags: ${{ steps.docker_meta_www.outputs.tags }}
           labels: ${{ steps.docker_meta_www.outputs.labels }}
